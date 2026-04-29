@@ -1,0 +1,38 @@
+services:
+  sms-integration-test:
+    build:
+      context: ./SmsIntegrationTest
+      dockerfile: Dockerfile
+    container_name: sms-integration-test-server
+    ports:
+      - "8080:8080"    # http
+      - "5001:5001"    # grpc 
+    environment:
+      - ASPNETCORE_URLS=http://+:8080;https://+:5001
+      # Указываем пароль от сертификата
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      # Указываем путь к сертификату внутри контейнера
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      # Монтируем папку с сертификатами с хоста в контейнер
+      # Предварительно обновляем девелоперские сертификаты в терминале (от имени администратора):
+      # dotnet dev-certs https --clean
+      # dotnet dev-certs https --trust
+      # Если не заработало, то создаем свой сертификат:
+      # dotnet dev-certs https -ep $env:USERPROFILE\.aspnet\https\aspnetapp.pfx -p password
+      - ~/.aspnet/https:/https:ro
+ 
+  sms-db:
+    image: postgres:16-alpine
+    container_name: sms-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sms-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

@@ -1,0 +1,11 @@
+<Solution>
+  <File Path="docker-compose.yml" />
+  <Folder Name="/Solution Items/">
+    <File Path="docker-compose.yml" />
+  </Folder>
+  <Project Path="Sms.Client/Sms.Client.csproj" />
+  <Project Path="Sms.DAL/Sms.DAL.csproj" />
+  <Project Path="Sms.Domain/Sms.Domain.csproj" />
+  <Project Path="SmsConsole/SmsConsole.csproj" />
+  <Project Path="SmsIntegrationTest/SmsIntegrationTest.csproj" Id="a0aa5540-7722-4eb1-89e0-0437112be4a0" />
+</Solution>
