@@ -62,7 +62,7 @@ public class HttpSmsClient : ISmsClient
         var httpResponse = await _httpClient.PostAsync(_endpoint, content, cancellationToken);
         var responseBody = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
 
-        var result = JsonSerializer.Deserialize<T>(responseBody, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var result = JsonSerializer.Deserialize<T>(responseBody, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
         return result;
     }
 
