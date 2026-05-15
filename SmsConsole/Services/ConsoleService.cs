@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Sms.Domain.Models;
 using System.Globalization;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Sms.ConsoleApp.Services;
 
@@ -30,55 +31,55 @@ public class ConsoleService(
             DisplayMessage("Введите позиции заказа в формате: Код1:Количество1;Код2:Количество2;...");
             var input = Console.ReadLine();
 
-            if (string.IsNullOrWhiteSpace(input))
+            try
             {
-                DisplayMessage("Пустой ввод. Попробуйте снова.");
-                continue;
+                var parsedInput = ParseInput(articles, input);
+                return parsedInput;
             }
-
-            var parts = input.Split(';', StringSplitOptions.RemoveEmptyEntries);
-            var items = new List<OrderItem>();
-            var error = false;
-
-            foreach (var part in parts)
-            {
-                var orderItem = part.Split(':');
-                if (orderItem.Length != 2)
-                {
-                    DisplayMessage("Неверный формат пары Код:Количество");
-                    error = true;
-                    break;
-                }
-
-                var article = orderItem[0].Trim();
-                if (!double.TryParse(orderItem[1].Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out var qty))
-                {
-                    DisplayMessage($"Некорректное количество для кода {article}");
-                    error = true;
-                    break;
-                }
-
-                if (qty <= 0)
-                {
-                    DisplayMessage($"Количество для кода {article} должно быть больше нуля");
-                    error = true;
-                    break;
-                }
-
-                if (!articles.Contains(article))
-                {
-                    DisplayMessage($"Код {article} не найден в меню");
-                    error = true;
-                    break;
-                }
-
-                items.Add(new OrderItem(article, qty));
-            }
-
-            if (!error)
-            {
-                return items;
+            catch (FormatException e)
+            { 
+                DisplayMessage(e.Message);
             }
         }
+    }
+
+    private List<OrderItem> ParseInput(HashSet<string> articles, string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            throw new FormatException("Пустой ввод. Попробуйте снова.");
+        }
+
+        var parts = input.Split(';', StringSplitOptions.RemoveEmptyEntries);
+        var items = new List<OrderItem>();
+
+        foreach (var part in parts)
+        {
+            var orderItem = part.Split(':');
+            if (orderItem.Length != 2)
+            {
+                throw new FormatException("Неверный формат пары Код:Количество");
+            }
+
+            var article = orderItem[0].Trim();
+            if (!double.TryParse(orderItem[1].Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out var qty))
+            {
+                throw new FormatException($"Некорректное количество для кода {article}");
+            }
+
+            if (qty <= 0)
+            {
+                throw new FormatException($"Количество для кода {article} должно быть больше нуля");
+            }
+
+            if (!articles.Contains(article))
+            {
+                throw new FormatException($"Код {article} не найден в меню");
+            }
+
+            items.Add(new OrderItem(article, qty));
+        }
+
+        return items;
     }
 }
